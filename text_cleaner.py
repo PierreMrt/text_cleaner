@@ -9,15 +9,16 @@ from nltk.stem.porter import PorterStemmer
 
 
 class TextCleaner:
-    def __init__(self, to_clean):
-        self.to_clean = to_clean
+    def __init__(self):
         self.settings = self.get_settings()
         self.lang_settings = {
             'english': {'active': True, 'words': set(stopwords.words('english'))},
             'french' : {'active': True, 'words': set(stopwords.words('french'))},
             'italian': {'active': True, 'words': set(stopwords.words('italian'))},
             'spanish': {'active': True, 'words': set(stopwords.words('spanish'))}}
-        self.stopwords = self.create_stopwords()
+        
+        self.white_list = []
+        self.black_list = []
 
     def get_settings(self):
         return {
@@ -28,15 +29,19 @@ class TextCleaner:
             'too_long':           {'active': True, 'action': self.too_long}
         }
 
-    def clean_text(self):
-        tokens = self.tokenize(self.to_clean)
+    def clean_text(self, to_clean, **kwargs):
+        tokens = self.tokenize(to_clean)
 
         for k, params in self.settings.items():
 
             if params['active']:
                 tokens = params['action'](tokens)
-            
-        return tokens
+
+        if 'stringify' in kwargs:
+            if kwargs['stringify']:
+                return ' '.join(tokens)
+        else:  
+            return tokens
 
     @staticmethod
     def tokenize(text):
@@ -58,7 +63,7 @@ class TextCleaner:
         return [w.lower() for w in tokens]
 
     def remove_stopwords(self, tokens):
-        return [w for w in tokens if w not in self.stopwords]
+        return [w for w in tokens if w not in self.create_stopwords()]
 
     @staticmethod
     def stemming(tokens):
@@ -70,12 +75,21 @@ class TextCleaner:
         return [w for w in tokens if len(w) < 13]
 
     def create_stopwords(self):
-        white_list = []
-        black_list = ['moreshow', 'plus', 'team', 'work' 'experience', 'esperienza', 'conoscenza', 'clients', 'expérience', 'équipe', 'équipes', 'lavoro', 'business']
-
-        stop_words = set(black_list)
+        stop_words = set(self.black_list)
         for v in self.lang_settings.values():
             if v['active']:
                 stop_words = set.union(stop_words, v['words'])
-        stop_words = [w for w in stop_words if w not in white_list]
+        stop_words = [w for w in stop_words if w not in self.white_list]
         return stop_words
+
+if __name__ == '__main__':
+    cleaner = TextCleaner()
+    text = "Today we're going to clean a lot of text easily!"
+    cleaner.white_list = []
+    cleaner.black_list = []
+
+    cleaner.lang_settings['french']['active'] = False
+    cleaner.settings['lower_case']['active'] = False
+    cleaned_text = cleaner.clean_text(text)
+    print(cleaned_text)
+
