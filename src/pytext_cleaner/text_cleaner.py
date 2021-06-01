@@ -2,7 +2,7 @@
 import contractions
 import re
 import string
-from types import SimpleNamespace
+import enum
 
 # Nltk download
 import nltk
@@ -15,25 +15,26 @@ from nltk.stem.porter import PorterStemmer
 
 class TextCleaner:
     def __init__(self):
-        self.settings = self.get_settings()
-        self.lang_settings = {
-            'english': {'active': True, 'words': set(stopwords.words('english'))},
-            'french' : {'active': True, 'words': set(stopwords.words('french'))},
-            'italian': {'active': True, 'words': set(stopwords.words('italian'))},
-            'spanish': {'active': True, 'words': set(stopwords.words('spanish'))}}
-        
+        self.settings = ['rm_punctuation', 'rm_numeric', 'lowerize', 'rm_stopwords']
+               
         self.white_list = []
         self.black_list = []
+        self.lang_settings = ['english']
 
-    def get_settings(self):
-        """ Default settings """
+    def lang_stopwords(self):
+        stop_words = set()
+        [stop_words.update(set(stopwords.words(lang.lower()))) for lang in self.lang_settings]
+        return stop_words
+
+    def action_settings(self):
+        """ map settings to their respective actions. """
         settings = {
-            'rm_punctuation': {'active': True, 'action' : self.remove_punctuation},
-            'rm_numeric'    : {'active': False, 'action': self.remove_numeric},
-            'lowerize'      : {'active': True, 'action' : self.lowerize},
-            'rm_stopwords'  : {'active': False,'action' : self.remove_stopwords},
-            'stem_words'    : {'active': False, 'action': self.stemming},
-            'rm_long_words' : {'active': True, 'action' : self.remove_long_words}
+            'rm_punctuation': self.remove_punctuation,
+            'rm_numeric'    : self.remove_numeric,
+            'lowerize'      : self.lowerize,
+            'rm_stopwords'  : self.remove_stopwords,
+            'stem_words'    : self.stemming,
+            'rm_long_words' : self.remove_long_words
         }
         return settings
 
@@ -42,10 +43,9 @@ class TextCleaner:
         to_clean = contractions.fix(to_clean) # Expand contractions
         tokens = self.tokenize(to_clean)
 
-        for params in self.settings.values():
-            if params['active']:
-                tokens = params['action'](tokens)
-
+        for param in self.settings:
+            tokens = self.action_settings()[param](tokens)
+            
         [tokens.remove(w) for w in tokens if w == ''] # Remove empty tokens
 
         if 'tokenize' in kwargs:
@@ -98,29 +98,9 @@ class TextCleaner:
 
     def create_stopwords(self):
         stop_words = set(self.black_list)
-        for v in self.lang_settings.values():
-            if v['active']:
-                stop_words = set.union(stop_words, v['words'])
+        stop_words.update(self.lang_stopwords())
         stop_words = [w for w in stop_words if w not in self.white_list]
         return stop_words
-
-
-class RecursiveNamespace(SimpleNamespace):
-
-  @staticmethod
-  def map_entry(entry):
-    if isinstance(entry, dict):
-      return RecursiveNamespace(**entry)
-
-    return entry
-
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
-    for key, val in kwargs.items():
-      if type(val) == dict:
-        setattr(self, key, RecursiveNamespace(**val))
-      elif type(val) == list:
-        setattr(self, key, list(map(self.map_entry, val)))
 
 
 if __name__ == '__main__':
@@ -130,8 +110,6 @@ if __name__ == '__main__':
             We've been waiting for this day hélas for so long.'''
     cleaner.white_list = []
     cleaner.black_list = []
-
-    cleaner.lang_settings['french']['active'] = False
     cleaned_text = cleaner.clean_text(text)
     print(cleaned_text)
 
