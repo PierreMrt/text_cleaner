@@ -8,17 +8,38 @@ Automaticaly tokenize text, remove punctuation and special characters, normalize
 
 ## Usage
 
-<u>Install</u>  :
+**Install**  :
 
-`pip install pytext_cleaner`
+> pip install pytext_cleaner
 
-<u>Example</u> : 
+**Example** : 
 
 ```
 from pytext_cleaner import TextCleaner
 
 cleaner = TextCleaner()
-cleaner.settings['rm_stopwords']['activate'] = True
-cleaner.lang_setting['french']['activate'] = True
+cleaner.settings = ['rm_punctuation', 'rm_numeric', 'lowerize']
+cleaner.lang_setting = ['italian', 'french']
 clean_text = cleaner.clean_text(string_to_clean, tokenize=True)
+```
+
+## Customize
+
+**Default settings**: `['rm_punctuation', 'rm_numeric', 'lowerize', 'rm_stopwords']`
+
+**Available settings** are** : 
+
+    * rm_punctuation
+    * rm_numeric
+    * lowerize
+    * rm_stopwords
+    * stem_words
+    * rm_long_words
+
+**Default language settings**: `['english']`
+
+**To include or exclude stopwords**:
+```
+cleaner.white_list = ['words', 'to', 'include']
+cleaner.black_list = ['words', 'to', 'exclude']
 ```
