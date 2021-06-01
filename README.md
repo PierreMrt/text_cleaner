@@ -1,6 +1,6 @@
 # Text cleaning with Natural Language Processing
 
-:yellow_circle: in progress
+:yellow_circle: _in progress_
 
 Python library using Natural Language Processing (NLP) to easily and quickly clean text.
 
@@ -20,21 +20,21 @@ from pytext_cleaner import TextCleaner
 cleaner = TextCleaner()
 cleaner.settings = ['rm_punctuation', 'rm_numeric', 'lowerize']
 cleaner.lang_setting = ['italian', 'french']
-clean_text = cleaner.clean_text(string_to_clean, tokenize=True)
+clean_text = cleaner.clean_text(string_to_clean)
 ```
 
 ## Customize
 
 **Default settings**: `['rm_punctuation', 'rm_numeric', 'lowerize', 'rm_stopwords']`
 
-**Available settings** are** : 
+**Available settings** are : 
 
-    * rm_punctuation
-    * rm_numeric
-    * lowerize
-    * rm_stopwords
-    * stem_words
-    * rm_long_words
+ * rm_punctuation
+ * rm_numeric
+ * lowerize
+ * rm_stopwords
+ * stem_words
+ * rm_long_words
 
 **Default language settings**: `['english']`
 
@@ -43,3 +43,11 @@ clean_text = cleaner.clean_text(string_to_clean, tokenize=True)
 cleaner.white_list = ['words', 'to', 'include']
 cleaner.black_list = ['words', 'to', 'exclude']
 ```
+
+**Change return type**:
+
+By default, text_cleaner return a modified string.
+
+To return of list of tokens, add tokenize=True:
+
+`cleaner.clean_text(string_to_clean, tokenize=True)`
