@@ -54,8 +54,7 @@ class TextCleaner:
         else:  
             return ' '.join(tokens)
 
-    @staticmethod
-    def tokenize(text):
+    def tokenize(self, text):
         """ Tokenize string and split numeric and alpha characters 
         
             :return: list of tokens
@@ -64,17 +63,17 @@ class TextCleaner:
         splitted = []
         for w in tokens:
             splitted += re.split(r'(\d+)', w)
+        splitted = self.rm_empty_tokens(splitted)
         return splitted
 
-    @staticmethod
-    def remove_punctuation(tokens):
+    def remove_punctuation(self, tokens):
         future_tokens = []
         for text in tokens: 
             try:
                 future_tokens.append(''.join(character for character in text if character not in string.punctuation))
             except TypeError as e:
                 print(f'Error removing punctuation from token:\n{e}')
-        return future_tokens
+        return self.rm_empty_tokens(future_tokens)
         
     @staticmethod
     def remove_numeric(tokens):
@@ -101,6 +100,10 @@ class TextCleaner:
         stop_words.update(self.lang_stopwords())
         stop_words = [w for w in stop_words if w not in self.white_list]
         return stop_words
+
+    @staticmethod
+    def rm_empty_tokens(tokens):
+        return list(filter(None, tokens))
 
 
 if __name__ == '__main__':
