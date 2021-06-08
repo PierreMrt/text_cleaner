@@ -104,15 +104,3 @@ class TextCleaner:
     @staticmethod
     def rm_empty_tokens(tokens):
         return list(filter(None, tokens))
-
-
-if __name__ == '__main__':
-    cleaner = TextCleaner()
-    text = '''I'll be there within 5min. Shouldn't you be there too?
-            I'd love to see u there my dear. It's awesome to meet new friends.
-            We've been waiting for this day hélas for so long.'''
-    cleaner.white_list = []
-    cleaner.black_list = []
-    cleaned_text = cleaner.clean_text(text)
-    print(cleaned_text)
-
